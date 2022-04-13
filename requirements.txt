@@ -9,3 +9,6 @@ redis
 pymysql
 pymongo
 pycryptodome
+snownlp
+jieba
+wordcloud
