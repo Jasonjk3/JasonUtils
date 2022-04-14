@@ -10,10 +10,6 @@ import pandas as pd
 import numpy as np
 
 
-class PdDataBase:
-
-    def __init__(self):
-        pass
 
 
 class PdMysql:
