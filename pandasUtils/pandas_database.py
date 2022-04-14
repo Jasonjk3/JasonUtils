@@ -14,10 +14,7 @@ import numpy as np
 
 class PdMysql:
     """
-    Mysql操作库，用于Mysql读取及操作
-
-    最近一次更新时间作者 2022/3/31，Robin
-    更新内容太：修改原MysqlOperator内部逻辑混乱，移除self.engine, 统一engines处理。
+        pandas专用的mysql封装
     """
 
     def __init__(self, host, port, user, password, dbname=None):
@@ -291,6 +288,9 @@ class PdMysql:
 
 
 class PdMongoDB:
+    """
+    pandas专用的mongo封装
+    """
     def __init__(self, uri='mongodb://localhost:27017/', db_name=None, collection_name=None):
         """初始化MongoDB数据库和表的信息并连接数据库
 
@@ -396,14 +396,14 @@ class PdMongoDB:
 
 if __name__ == '__main__':
     # mongo
-    db = PdMongoDB('mongodb://root:2wsx%23EDC@dds-wz99c5e03de5c6441901-pub.mongodb.rds.aliyuncs.com:3717', 'aws_verifi',
+    db = PdMongoDB('xxx', 'aws_verifi',
                    'amz_special_vehicle')
     print(db)
     df = db.find({})
     print(df.head())
 
     # mysql
-    mysql_db = PdMysql(host='rm-wz99q99s4a9o0n6dmvo.mysql.rds.aliyuncs.com', port=3306, user='jason',
-                       password='2wsx#EDC')
+    mysql_db = PdMysql(host='xxx', port=3306, user='jason',
+                       password='xxx')
     df2 = mysql_db.read_sql(sql='select * from amz_product_tree', database='清洗_亚马逊数据')
     print(df2)
