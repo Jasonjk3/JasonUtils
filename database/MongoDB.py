@@ -17,36 +17,32 @@ class MongoDBClient:
         :param collection: 表名
         """
         self.uri = uri
-        self.db_name = db
-        client = pymongo.MongoClient(uri)
-        self.db = client[db]  # 数据库
-        self.collection = self.db[collection]  # 表
+        self.client = pymongo.MongoClient(uri)
 
-        if db not in client.list_database_names():
+        self.db_name = db_name
+        self.collection_name = collection_name
+
+        if db_name is not None and self.db_name not in self.client.list_database_names():
             print("数据库不存在！")
-        if collection not in self.db.list_collection_names():
+        if collection_name is not None and self.collection_name not in self.client[db_name].list_collection_names():
             print("表不存在！")
 
     def __str__(self):
         """数据库基本信息"""
-        db = self.db._Database__name
-        collection = self.collection._Collection__name
-        num = self.collection.find().count()
-        return "数据库{} 表{} 共{}条数据".format(db, collection, num)
+        db = self.client[self.db_name]._Database__name
+        collection = self.client[self.db_name][self.collection_name]._Collection__name
+        num = len(self)
+        return "数据库[{}] 表[{}] 共{}条数据".format(db, collection, num)
 
     def __len__(self):
         """表的数据条数"""
-        return self.collection.find().count()
+        return self.client[self.db_name][self.collection_name].count_documents(filter={})
 
-    def count(self):
-        """表的数据条数"""
-        return len(self)
-
-    def get_db(self,collection):
-        client = pymongo.MongoClient(uri)
-        db = client[self.db_name]
-
-        return db[collection]
+    def change_db(self, db_name, collection_name=None):
+        if db_name is not None:
+            self.db_name = db_name
+        if collection_name is not None:
+            self.collection_name = collection_name
 
     def insert(self, *args, **kwargs):
         """插入多条数据
@@ -62,7 +58,7 @@ class MongoDBClient:
             else:
                 documents += [x for x in i]
         documents.append(kwargs)
-        return self.collection.insert_many(documents)
+        return self.client[self.db_name][self.collection_name].insert_many(documents)
 
     def delete(self, *args, **kwargs):
         """删除一批数据
@@ -71,9 +67,8 @@ class MongoDBClient:
         :param kwargs: 直接指定，如gender="male"
         :return: 已删除条数
         """
-        # TODO(XerCis) 增加正则表达式
         list(map(kwargs.update, args))
-        result = self.collection.delete_many(kwargs)
+        result = self.client[self.db_name][self.collection_name].delete_many(kwargs)
         return result.deleted_count
 
     def update(self, *args, **kwargs):
@@ -91,36 +86,15 @@ class MongoDBClient:
             if not isinstance(i, dict):
                 for id in i:
                     query.update(id)
-                    result = self.collection.update_one(query, value)
+                    result = self.client[self.db_name][self.collection_name].update_one(query, value)
                     n += result.modified_count
-        result = self.collection.update_many(query, value)
+        result = self.client[self.db_name][self.collection_name].update_many(query, value)
         return n + result.modified_count
 
     def find(self, *args, **kwargs):
         """保留原接口"""
-        return self.collection.find(*args, **kwargs)
+        return self.client[self.db_name][self.collection_name].find(*args, **kwargs)
 
-    def find_all(self, show_id=False):
-        """所有查询结果
-
-        :param show_id: 是否显示_id，默认不显示
-        :return:所有查询结果
-        """
-        if show_id == False:
-            return [i for i in self.collection.find({}, {"_id": 0})]
-        else:
-            return [i for i in self.collection.find({})]
-
-    def find_col(self, *args, **kwargs):
-        """查找某一列数据
-
-        :param key: 某些字段，如"name","age"
-        :param value: 某些字段匹配，如gender="male"
-        :return:
-        """
-        key_dict = {"_id": 0}  # 不显示_id
-        key_dict.update({i: 1 for i in args})
-        return [i for i in self.collection.find(kwargs, key_dict)]
 
 
 if __name__ == '__main__':
@@ -153,7 +127,4 @@ if __name__ == '__main__':
     # print(mongodb.update(id, {"author": "XerCis"}, country="China", age=22, height=178))
     # print(mongodb.find_col(author="XerCis"))
 
-    """查"""
-    print(mongodb.find_all(show_id=True))  # 所有查询结果，包含_id
-    # print(mongodb.find_col("_id", "author", "gender", author="XerCis"))  # 显示author、gender，且author为XerCis
 
