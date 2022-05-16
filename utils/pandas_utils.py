@@ -69,25 +69,7 @@ def count_NaCols(origin_df):
         t = sum(df[col] != '')
         print(col, t)
 
-def filter_cols(origin_df, num, retain_cols=None):
-    '''
-    获取列中空值小于一定阈值的列，如果传入retain_cols，则保留指定的列
-    :param origin_df:
-    :param num: 小于的数量
-    :param retain_cols: 保留的列 (list)
-    :return:
-    '''
-    if retain_cols is None:
-        retain_cols = []
-    df = origin_df.copy()
-    df = replaceNa(df) # nan替换成空字符串
-    res = []
-    for col in df.columns:
-        t = sum(df[col] != '')
-        if t<= num and col not in retain_cols:
-            res.append(col)
 
-    return res
 
 def drop_cols(origin_df,num=0, retain_cols=None):
     """
