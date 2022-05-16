@@ -1,6 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Python version 2.7.13 or 3.7.2
+# -*- ecoding: utf-8 -*-
+# @ModuleName: identity_utils
+# @Author: jason
+# @Email: jasonforjob@qq.com
+# @Time: 2021/5/25 15:19
+# @Desc:身份证信息处理常用函数
 
 import random
 import re
@@ -9,6 +12,7 @@ from datetime import datetime, timedelta
 
 # 导入常量并重命名
 import constant as const
+
 
 
 class IdNumber(str):

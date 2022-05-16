@@ -43,13 +43,6 @@ def replaceNa(df, rep_str=''):
     return df.replace([np.nan, None], [rep_str, rep_str])
 
 
-def processing_dot(ser):
-    """
-    比如将liters 2 转成2.0 然后再转成字符串
-    :param ser:
-    :return:
-    """
-    return np.round(ser.replace([''], [-1]).astype(np.float64), 1).replace([-1, np.nan], ['', '']).astype(str)
 
 
 def split_df(df, num=10):
@@ -64,7 +57,7 @@ def split_df(df, num=10):
         yield df.iloc[i:i + split_num]
 
 
-def count_cols(origin_df):
+def count_NaCols(origin_df):
     '''
     统计每个字段列不为空的数量
     :param origin_df:
@@ -76,9 +69,9 @@ def count_cols(origin_df):
         t = sum(df[col] != '')
         print(col, t)
 
-def get_small_cols(origin_df, num, retain_cols=None):
+def filter_cols(origin_df, num, retain_cols=None):
     '''
-    获取列中小于一定阈值的列，如果传入retain_cols，则保留指定的列
+    获取列中空值小于一定阈值的列，如果传入retain_cols，则保留指定的列
     :param origin_df:
     :param num: 小于的数量
     :param retain_cols: 保留的列 (list)
@@ -97,10 +90,24 @@ def get_small_cols(origin_df, num, retain_cols=None):
     return res
 
 def drop_cols(origin_df,num=0, retain_cols=None):
+    """
+    删除列中非空值小于一定阈值的列，如果传入retain_cols，则保留指定的列
+    :param origin_df:
+    :param num: 小于的数量
+    :param retain_cols: 保留的列 (list)
+    :return:
+    """
     df = origin_df.copy()
     df = replaceNa(df) # nan替换成空字符串
 
-    cols=get_small_cols(df,num,retain_cols)
+    if retain_cols is None:
+        retain_cols = []
+
+    cols = []
+    for col in df.columns:
+        t = sum(df[col] != '') # 非空数
+        if t<= num and col not in retain_cols:
+            cols.append(col)
     print('删除->',cols)
     origin_df = origin_df.drop(cols,axis=1)
     return origin_df
@@ -139,7 +146,7 @@ Process finished with exit code 0
     return df
 
 
-def data_strip(origin_df):
+def strip_data(origin_df):
     """
     给dataframe所有值进行strip操作
     :param origin_df:
@@ -203,6 +210,3 @@ def get_date_info(df, col):
     df[f'{col}_dayofweek'] = df[col].dt.dayofweek+1
     return df
 
-
-if __name__ == '__main__':
-    print(get_sku2partnumber_dict())

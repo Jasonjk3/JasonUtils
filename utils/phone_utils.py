@@ -3,7 +3,7 @@
 # @Author: jason
 # @Email: jasonforjob@qq.com
 # @Time: 2021/5/25 15:19
-# @Desc:
+# @Desc:手机号相关处理函数
 import random
 
 def create_phone():
