@@ -17,9 +17,20 @@ class MySQLClient:
 
 
     # 返回执行execute()方法后影响的行数
-
     def execute(self, sql):
-        self.cursor.execute(sql)
+        """
+        执行sql
+        """
+        try:
+            # 执行SQL语句
+            self.cursor.execute(sql)
+            # 提交到数据库执行
+            self.conn.commit()
+
+        except Exception as e:
+            # 发生错误时回滚
+            self.conn.rollback()
+            raise e
         rowcount = self.cursor.rowcount
         return rowcount
 
